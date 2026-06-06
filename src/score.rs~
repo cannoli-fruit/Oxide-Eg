@@ -1,0 +1,125 @@
+#![allow(non_snake_case)]
+
+use std::cmp::Ordering;
+use std::fmt::*;
+
+#[derive(Clone, Copy)]
+pub struct Score {
+    pub val: i32,
+    pub isMate: bool,
+    pub infn: bool,
+    pub infp: bool,
+}
+
+impl Score {
+    fn ordering_key(&self) -> i128 {
+        const MATE_BASE: i128 = 1_000_000_000;
+        if self.infn {
+            return i128::MIN + 1;
+        }
+        if self.infp {
+            return i128::MAX - 1;
+        }
+
+        if self.isMate {
+            if self.val > 0 {
+                return MATE_BASE - (self.val as i128);
+            } else {
+                return (-MATE_BASE - (self.val as i128));
+            }
+        }
+
+        self.val as i128
+    }
+
+    pub fn is_greater(&self, other: Score) -> bool {
+        self.ordering_key() > other.ordering_key()
+    }
+
+    pub fn inverse(self) -> Score {
+        let mut clone = self.clone();
+        clone.val *= -1;
+
+        let tmp = clone.infn;
+        clone.infn = clone.infp;
+        clone.infp = tmp;
+
+        return clone;
+    }
+
+    pub fn step(self) -> Score {
+        let mut clone = self.clone();
+
+        if !clone.isMate {
+            return clone;
+        }
+
+        if clone.val > 0 {
+            clone.val += 1;
+        } else if clone.val < 0 {
+            clone.val -= 1;
+        }
+
+        return clone;
+    }
+
+    pub fn print(self) {
+        if self.infp {
+            println!("+Inf");
+            return;
+        }
+        if self.infn {
+            println!("-Inf");
+            return;
+        }
+        if self.isMate {
+            println!("Mate in {}", self.val);
+            return;
+        }
+        println!("{} Cp", self.val);
+    }
+
+    pub fn new() -> Score {
+        Score {
+            val: 0,
+            isMate: false,
+            infn: false,
+            infp: false,
+        }
+    }
+}
+
+impl Ord for Score {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.ordering_key().cmp(&other.ordering_key())
+    }
+}
+
+impl PartialOrd for Score {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Score {
+    fn eq(&self, other: &Self) -> bool {
+        self.ordering_key() == other.ordering_key()
+    }
+}
+
+impl Eq for Score {}
+
+impl Display for Score {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        if self.infp {
+            return write!(f, "+Inf");
+        }
+        if self.infn {
+            return write!(f, "-Inf");
+        }
+        if self.isMate {
+            return write!(f, "M: {}", self.val);
+        }
+        return write!(f, "{} Cp", self.val);
+    }
+}

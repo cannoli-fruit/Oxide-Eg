@@ -1,0 +1,34 @@
+use chess::Board;
+use chess::ChessMove;
+use chess::MoveGen;
+
+use crate::negamax;
+
+pub fn select_move(b: &Board) -> ChessMove {
+    let mut moves = MoveGen::new_legal(b);
+
+    let mut bestMove = ChessMove::default();
+    let mut bestScore = Score::new();
+    bestScore.infn = true;
+
+    let mut inp = score::Score::new();
+    inp.val = 1;
+    inp.isMate = true;
+    inp.infn = false;
+    inp.infp = false;
+
+    let mut inn = score::Score::new();
+    inn.val = -1;
+    inn.isMate = true;
+    inn.infn = false;
+    inn.infp = false;
+
+    for mov in &mut moves {
+        let child = b.make_move_new(mov);
+        let ev = eval_negamax(&child, 3, inn, inp);
+        if ev.is_greater(bestScore) {
+            bestScore = ev;
+            bestMove = mov;
+        }
+    }
+}
