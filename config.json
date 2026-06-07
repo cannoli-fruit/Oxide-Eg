@@ -60,7 +60,7 @@
     },
     "config_name": "config.json",
     "output": 0,
-    "seed": 13006298600321603390,
+    "seed": 9544925166498565277,
     "variant": 0,
     "type": 0,
     "gauntlet_seeds": 1,
@@ -130,15 +130,15 @@
     ],
     "stats": {
         "new vs base": {
-            "wins": 12,
-            "losses": 23,
-            "draws": 11,
-            "penta_WW": 0,
-            "penta_WD": 5,
-            "penta_WL": 7,
-            "penta_DD": 1,
-            "penta_LD": 4,
-            "penta_LL": 6
+            "wins": 305,
+            "losses": 205,
+            "draws": 102,
+            "penta_WW": 69,
+            "penta_WD": 57,
+            "penta_WL": 110,
+            "penta_DD": 7,
+            "penta_LD": 31,
+            "penta_LL": 32
         }
     }
 }
