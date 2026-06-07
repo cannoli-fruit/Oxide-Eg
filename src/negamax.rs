@@ -380,6 +380,7 @@ pub fn eval_negamax(
             //}
             if depth >= options.lmrMinDepth {
                 nextdepth -= 1 + int_log2(depth) + (int_log2(movidx) >> 2);
+                nextdepth = nextdepth.max(0);
             }
 
             // null window around alpha (correct PVS idea)
