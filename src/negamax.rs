@@ -26,11 +26,11 @@ fn value(p: Option<Piece>, options: Settings) -> i32 {
     }
 }
 
-fn int_log2(x: i32) -> Option<u32> {
+fn int_log2(x: i32) -> i32 {
     if x == 0 {
-        None
+        -1
     } else {
-        Some(31 - x.leading_zeros())
+        (31 - x.leading_zeros()).try_into().unwrap()
     }
 }
 
@@ -375,12 +375,12 @@ pub fn eval_negamax(
             .step();
         } else {
             // LMR
-            if movidx >= options.lmrMinIdx && depth >= options.lmrMinDepth {
-                nextdepth -= options.lmrMaxRedux.min(depth - 1);
-            }
-            //if depth >= options.lmrMinDepth {
-            //    nextdepth -= 1 + int_log2(depth) + (int_log2(moxidx) >> 2)
+            //if movidx >= options.lmrMinIdx && depth >= options.lmrMinDepth {
+            //    nextdepth -= options.lmrMaxRedux.min(depth - 1);
             //}
+            if depth >= options.lmrMinDepth {
+                nextdepth -= 1 + int_log2(depth) + (int_log2(movidx) >> 2);
+            }
 
             // null window around alpha (correct PVS idea)
             let mut null_beta = al.clone();
