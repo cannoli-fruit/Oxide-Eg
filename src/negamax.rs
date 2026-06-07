@@ -35,7 +35,7 @@ fn quiesce(
     options: Settings,
 ) -> Score {
     *counter += 1;
-    let ev = eval_static(*b);
+    let ev = eval_static(*b, options);
 
     let mut val = ev;
     if !beta.is_greater(val) {
@@ -237,7 +237,7 @@ pub fn eval_negamax(
         }
     }
 
-    let ev_static = eval_static(*b);
+    let ev_static = eval_static(*b, options);
 
     // Razoring
     if ev_static.val < al.val - options.razoringMargin {
@@ -247,10 +247,18 @@ pub fn eval_negamax(
         }
     }
 
+    // Futility Pruning
     if depth <= options.futilityDepth {
         let ev_quiescent = quiesce(b, al, be, table, counter, options);
         if ev_quiescent.val + options.futilitySafety < alpha.val {
             return ev_quiescent;
+        }
+    }
+
+    // Reverse Futility Pruning
+    if depth <= options.revFutilityDepth && false {
+        if ev_static.val >= beta.val + options.revFutilityFactor * (depth as i64) {
+            return beta;
         }
     }
 

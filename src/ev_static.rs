@@ -1,10 +1,11 @@
 use crate::pst::*;
 use crate::score::Score;
+use crate::settings::Settings;
 
 use chess::{Board, Color, MoveGen, Piece};
 use std::ops::BitAnd;
 
-pub fn eval_static(b: Board) -> Score {
+pub fn eval_static(b: Board, options: Settings) -> Score {
     let white = b.color_combined(Color::White);
     let black = b.color_combined(Color::Black);
 
@@ -56,12 +57,12 @@ pub fn eval_static(b: Board) -> Score {
     }
 
     let v: i64 = (100 * (white_pawns - black_pawns)
-        + 300 * (white_knights - black_knights)
-        + 300 * (white_bishops - black_bishops)
-        + 500 * (white_rooks - black_rooks)
-        + 900 * (white_queens - black_queens)
-        + 6 * (black_dist - white_dist)
-        + 5 * (movcount - movcount2))
+        + options.knightValue * (white_knights - black_knights)
+        + options.bishopValue * (white_bishops - black_bishops)
+        + options.rookValue * (white_rooks - black_rooks)
+        + options.queenValue * (white_queens - black_queens)
+        + options.kingPosValue * (black_dist - white_dist)
+        + options.mobilityValue * (movcount - movcount2))
         .into();
     // let v = (movcount - movcount2) as i64;
     let mut sc = Score::new();
