@@ -1,12 +1,10 @@
 #[derive(Copy, Clone)]
 pub struct Settings {
     // Keep pawn value out so it stays at 100
-    pub knightValue: i32,
-    pub bishopValue: i32,
-    pub rookValue: i32,
-    pub queenValue: i32,
-    pub mobilityValue: i32,
-    pub kingPosValue: i32,
+    pub knightValue: i64,
+    pub bishopValue: i64,
+    pub rookValue: i64,
+    pub queenValue: i64,
     pub nmpDepthMin: i32,
     pub nmpStaticSafety: i64,
     pub nmpMinPieces: u32,
@@ -18,5 +16,7 @@ pub struct Settings {
     pub quietFutilitySafety: i64,
     pub futilitySafety: i64,
     pub futilityDepth: i32,
+    pub revFutilityDepth: i32,
+    pub revFutilityFactor: i64,
     pub aspirationWindowSize: i64,
 }

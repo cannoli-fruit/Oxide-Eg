@@ -1,6 +1,5 @@
 mod ev_static;
 mod negamax;
-mod pst;
 mod score;
 mod sel_move;
 mod settings;
@@ -37,8 +36,6 @@ fn main() {
         bishopValue: 300,
         rookValue: 500,
         queenValue: 900,
-        mobilityValue: 5,
-        kingPosValue: 6,
         nmpDepthMin: 4,
         nmpStaticSafety: 200,
         nmpMinPieces: 12,
@@ -49,7 +46,9 @@ fn main() {
         deltaStaticSafety: 300,
         quietFutilitySafety: 200,
         futilitySafety: 200,
-        futilityDepth: 2,
+        futilityDepth: 3,
+        revFutilityDepth: 5,
+        revFutilityFactor: 15,
         aspirationWindowSize: 35,
     };
 
@@ -67,17 +66,19 @@ fn main() {
             println!("option name queenValue type spin default 900 min 0 max 1500");
             println!("option name mobilityValue type spin default 5 min -50 max 50");
             println!("option name kingPosValue type spin default 6 min -50 max 50");
-            println!("option name nmpDepthMin type spin default 4 min 3 max 6");
+            println!("option name nmpDepthMin type spin default 4 min 3 max 24");
             println!("option name nmpStaticSafety type spin default 200 min 0 max 1500");
             println!("option name nmpMinPieces type spin default 12 min 0 max 32");
             println!("option name lmrMinIdx type spin default 5 min 2 max 30");
-            println!("option name lmrMinDepth type spin default 2 min 1 max 6");
-            println!("option name lmrMaxRedux type spin default 2 min 1 max 6");
+            println!("option name lmrMinDepth type spin default 2 min 1 max 24");
+            println!("option name lmrMaxRedux type spin default 2 min 1 max 24");
             println!("option name razoringMargin type spin default 400 min 0 max 1500");
             println!("option name deltaStaticSafety type spin default 300 min 0 max 1500");
             println!("option name quietFutilitySafety type spin default 200 min 0 max 1500");
             println!("option name futilitySafety type spin default 200 min 0 max 1500");
-            println!("option name futilityDepth type spin default 200 min 0 max 1500");
+            println!("option name futilityDepth type spin default 3 min 0 max 1500");
+            println!("option name revFutilityDepth type spin default 5 min 1 max 24");
+            println!("option name revFutilityFactor type spin default 150 min 0 max 1500");
             println!("option name aspirationWindowSize type spin default 35 min 1 max 500");
             println!("uciok");
         }
@@ -124,7 +125,7 @@ fn main() {
         if buf.starts_with("go infinite") {
             let mut counter = 0;
             let mov =
-                sel_move::select_move(&pos, &mut history, &mut table, 1500, &mut counter, options);
+                sel_move::select_move(&pos, &mut history, &mut table, 150, &mut counter, options);
             println!("info nodes {}", counter);
             println!("bestmove {}", mov,);
         }
@@ -181,8 +182,6 @@ fn main() {
                     "bishopValue" => options.bishopValue = value.parse().unwrap(),
                     "rookValue" => options.rookValue = value.parse().unwrap(),
                     "queenValue" => options.queenValue = value.parse().unwrap(),
-                    "mobilityValue" => options.mobilityValue = value.parse().unwrap(),
-                    "kingPosValue" => options.kingPosValue = value.parse().unwrap(),
                     "nmpDepthMin" => options.nmpDepthMin = value.parse().unwrap(),
                     "nmpStaticSafety" => options.nmpStaticSafety = value.parse().unwrap(),
                     "lmrMinIdx" => options.lmrMinIdx = value.parse().unwrap(),
@@ -193,6 +192,8 @@ fn main() {
                     "quietFutilitySafety" => options.quietFutilitySafety = value.parse().unwrap(),
                     "futilitySafety" => options.futilitySafety = value.parse().unwrap(),
                     "futilityDepth" => options.futilityDepth = value.parse().unwrap(),
+                    "revFutilityFactor" => options.revFutilityFactor = value.parse().unwrap(),
+                    "revFutilityDepth" => options.revFutilityDepth = value.parse().unwrap(),
                     "aspirationWindowSize" => options.aspirationWindowSize = value.parse().unwrap(),
 
                     _ => {}

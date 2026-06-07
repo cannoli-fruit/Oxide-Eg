@@ -17,10 +17,10 @@ use std::hash::{BuildHasher, Hash, Hasher};
 fn value(p: Option<Piece>, options: Settings) -> i32 {
     match p {
         Some(Piece::Pawn) => 100,
-        Some(Piece::Knight) => options.knightValue,
-        Some(Piece::Bishop) => options.bishopValue,
-        Some(Piece::Rook) => options.rookValue,
-        Some(Piece::Queen) => options.queenValue,
+        Some(Piece::Knight) => options.knightValue.try_into().unwrap(),
+        Some(Piece::Bishop) => options.bishopValue.try_into().unwrap(),
+        Some(Piece::Rook) => options.rookValue.try_into().unwrap(),
+        Some(Piece::Queen) => options.queenValue.try_into().unwrap(),
         Some(Piece::King) => 99999, // why is this even here
         None => 0,
     }
