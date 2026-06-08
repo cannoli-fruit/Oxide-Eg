@@ -127,6 +127,7 @@ fn main() {
             let mov =
                 sel_move::select_move(&pos, &mut history, &mut table, 150, &mut counter, options);
             println!("info nodes {}", counter);
+            println!("info time 150");
             println!("bestmove {}", mov,);
         }
         if buf.starts_with("go movetime") {
