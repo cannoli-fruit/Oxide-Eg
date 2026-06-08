@@ -91,34 +91,39 @@ pub fn eval_static(b: Board, options: Settings) -> Score {
         if let Some(p) = piece {
             let c = b.color_on(square).unwrap();
             let mut y_rel = y;
+            let mut cv = 1.0;
             if c == Color::White {
                 // psts are backwards so is this
                 y_rel = 7 - y_rel;
+            } else {
+                cv = -1.0;
             }
 
             let idx = x + y_rel * 8;
             if p == Piece::Pawn {
-                let v = mgw * (mg_pawn_pst[idx] as f32) + egw * (eg_pawn_pst[idx] as f32);
+                let v = (mgw * (mg_pawn_pst[idx] as f32) + egw * (eg_pawn_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
             if p == Piece::Knight {
-                let v = mgw * (mg_knight_pst[idx] as f32) + egw * (eg_knight_pst[idx] as f32);
+                let v =
+                    (mgw * (mg_knight_pst[idx] as f32) + egw * (eg_knight_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
             if p == Piece::Bishop {
-                let v = mgw * (mg_bishop_pst[idx] as f32) + egw * (eg_bishop_pst[idx] as f32);
+                let v =
+                    (mgw * (mg_bishop_pst[idx] as f32) + egw * (eg_bishop_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
             if p == Piece::Rook {
-                let v = mgw * (mg_rook_pst[idx] as f32) + egw * (eg_rook_pst[idx] as f32);
+                let v = (mgw * (mg_rook_pst[idx] as f32) + egw * (eg_rook_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
             if p == Piece::Queen {
-                let v = mgw * (mg_queen_pst[idx] as f32) + egw * (eg_queen_pst[idx] as f32);
+                let v = (mgw * (mg_queen_pst[idx] as f32) + egw * (eg_queen_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
             if p == Piece::King {
-                let v = mgw * (mg_king_pst[idx] as f32) + egw * (eg_king_pst[idx] as f32);
+                let v = (mgw * (mg_king_pst[idx] as f32) + egw * (eg_king_pst[idx] as f32)) * cv;
                 pst_total += v as i64;
             }
         }
