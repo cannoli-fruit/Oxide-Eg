@@ -13,9 +13,9 @@ use std::time::Instant;
 
 fn col_val(c: Color) -> i64 {
     if c == Color::White {
-        1
-    } else {
         -1
+    } else {
+        1
     }
 }
 
