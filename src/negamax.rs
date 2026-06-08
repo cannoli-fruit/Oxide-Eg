@@ -112,14 +112,6 @@ fn quiesce(
     for mov in moves {
         let victim_value = value(b.piece_on(mov.get_dest()), options) as i64;
         let attacker_value = value(b.piece_on(mov.get_source()), options) as i64;
-        if ev.val + victim_value + options.deltaStaticSafety < alpha.val {
-            // Delta prune
-            continue;
-        }
-        if victim_value + options.quietFutilitySafety <= attacker_value {
-            // futility i think but there was a diff name for quiescent idk
-            continue;
-        }
         b.make_move(mov, &mut child);
         let score = quiesce(
             &child,
@@ -247,14 +239,6 @@ pub fn eval_negamax(
 
     let ev_static = eval_static(*b, options);
 
-    // Razoring
-    if ev_static.val < al.val - options.razoringMargin {
-        let v = quiesce(b, al, be, table, counter, options);
-        if v.val < al.val {
-            return v;
-        }
-    }
-
     // Reverse Futility Pruning
     if depth <= options.revFutilityDepth && false {
         if ev_static.val >= beta.val + options.revFutilityFactor * (depth as i64) {
@@ -269,6 +253,7 @@ pub fn eval_negamax(
             > options.nmpMinPieces
         && !be.isMate()
         && ev_static.val >= beta.val - options.nmpStaticSafety
+        && false
     {
         let child = b.null_move().unwrap();
 
@@ -292,21 +277,7 @@ pub fn eval_negamax(
         .step();
 
         if !be.is_greater(score) && !score.isMate() {
-            let verif = eval_negamax(
-                &child,
-                history,
-                depth - 1,
-                be.clone().inverse(),
-                al.clone().inverse(),
-                table,
-                counter,
-                options,
-            )
-            .inverse()
-            .step();
-            if !beta.is_greater(verif) {
-                return be;
-            }
+            return be;
         }
     }
 
@@ -371,7 +342,7 @@ pub fn eval_negamax(
             //    nextdepth -= options.lmrMaxRedux.min(depth - 1);
             //}
             if depth >= options.lmrMinDepth {
-                nextdepth -= 1 + int_log2(depth) + (int_log2(movidx) >> 2);
+                nextdepth -= 2 + int_log2(depth) + (int_log2(movidx) >> 2);
                 nextdepth = nextdepth.max(0);
             }
 

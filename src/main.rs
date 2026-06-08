@@ -42,6 +42,7 @@ fn main() {
         lmrMinIdx: 3,
         lmrMinDepth: 2,
         lmrMaxRedux: 2,
+        kingAttackValue: 0,
         razoringMargin: 400,
         deltaStaticSafety: 300,
         quietFutilitySafety: 200,
@@ -64,8 +65,7 @@ fn main() {
             println!("option name bishopValue type spin default 300 min 0 max 1500");
             println!("option name rookValue type spin default 500 min 0 max 1500");
             println!("option name queenValue type spin default 900 min 0 max 1500");
-            println!("option name mobilityValue type spin default 5 min -50 max 50");
-            println!("option name kingPosValue type spin default 6 min -50 max 50");
+            println!("option name kingAttackValue type spin default 20 min 0 max 100");
             println!("option name nmpDepthMin type spin default 4 min 3 max 24");
             println!("option name nmpStaticSafety type spin default 200 min 0 max 1500");
             println!("option name nmpMinPieces type spin default 12 min 0 max 32");
@@ -126,8 +126,8 @@ fn main() {
             let mut counter = 0;
             let mov =
                 sel_move::select_move(&pos, &mut history, &mut table, 150, &mut counter, options);
-            println!("info nodes {}", counter);
             println!("info time 150");
+            println!("info nodes {}", counter);
             println!("bestmove {}", mov,);
         }
         if buf.starts_with("go movetime") {
@@ -188,6 +188,7 @@ fn main() {
                     "lmrMinIdx" => options.lmrMinIdx = value.parse().unwrap(),
                     "lmrMinDepth" => options.lmrMinDepth = value.parse().unwrap(),
                     "lmrMaxRedux" => options.lmrMaxRedux = value.parse().unwrap(),
+                    "kingAttackValue" => options.kingAttackValue = value.parse().unwrap(),
                     "razoringMargin" => options.razoringMargin = value.parse().unwrap(),
                     "deltaStaticSafety" => options.deltaStaticSafety = value.parse().unwrap(),
                     "quietFutilitySafety" => options.quietFutilitySafety = value.parse().unwrap(),

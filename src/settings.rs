@@ -11,6 +11,7 @@ pub struct Settings {
     pub lmrMinIdx: i32,
     pub lmrMinDepth: i32,
     pub lmrMaxRedux: i32,
+    pub kingAttackValue: i64,
     pub razoringMargin: i64,
     pub deltaStaticSafety: i64,
     pub quietFutilitySafety: i64,

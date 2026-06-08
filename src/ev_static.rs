@@ -1,7 +1,7 @@
 use crate::score::Score;
 use crate::settings::Settings;
 
-use chess::{Board, Color, MoveGen, Piece, ALL_SQUARES};
+use chess::{BitBoard, Board, ChessMove, Color, MoveGen, Piece, ALL_SQUARES};
 use std::ops::BitAnd;
 
 const mg_pawn_pst: [i64; 64] = [
@@ -77,6 +77,26 @@ const eg_king_pst: [i64; 64] = [
     44, 13, -8, 22, 24, 27, 26, 33, 26, 3, -18, -4, 21, 24, 27, 23, 9, -11, -19, -3, 11, 21, 23,
     16, 7, -9, -27, -11, 4, 13, 14, 4, -5, -17, -53, -34, -21, -11, -28, -14, -24, -43,
 ];
+
+pub fn adjacent_mask(sq: u8) -> u64 {
+    let file = (sq & 7) as i8;
+    let rank = (sq >> 3) as i8;
+    let mut mask: u64 = 0;
+    for dr in -1..=1 {
+        for df in -1..=1 {
+            if dr == 0 && df == 0 {
+                continue;
+            }
+            let r = rank + dr;
+            let f = file + df;
+            if (0..=7).contains(&r) && (0..=7).contains(&f) {
+                let t = (r as u8) * 8 + (f as u8);
+                mask |= 1u64 << t;
+            }
+        }
+    }
+    mask
+}
 
 pub fn eval_static(b: Board, options: Settings) -> Score {
     let pieceCount = b.combined().popcnt();

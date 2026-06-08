@@ -60,7 +60,7 @@
     },
     "config_name": "config.json",
     "output": 0,
-    "seed": 9544925166498565277,
+    "seed": 9278061444727780574,
     "variant": 0,
     "type": 0,
     "gauntlet_seeds": 1,
@@ -90,15 +90,15 @@
         {
             "name": "new",
             "dir": "",
-            "cmd": "oldbin/pst-v10",
+            "cmd": "oldbin/aggro-lmr-v16",
             "args": "",
             "restart": false,
             "options": [],
             "limit": {
                 "tc": {
-                    "increment": 80,
+                    "increment": 60,
                     "fixed_time": 0,
-                    "time": 8000,
+                    "time": 1000,
                     "moves": 0,
                     "timemargin": 0
                 },
@@ -110,15 +110,15 @@
         {
             "name": "base",
             "dir": "",
-            "cmd": "oldbin/nopst-v11",
+            "cmd": "target/release/ox-eg",
             "args": "",
             "restart": false,
             "options": [],
             "limit": {
                 "tc": {
-                    "increment": 80,
+                    "increment": 60,
                     "fixed_time": 0,
-                    "time": 8000,
+                    "time": 1000,
                     "moves": 0,
                     "timemargin": 0
                 },
@@ -130,15 +130,15 @@
     ],
     "stats": {
         "new vs base": {
-            "wins": 305,
-            "losses": 205,
-            "draws": 102,
-            "penta_WW": 69,
-            "penta_WD": 57,
-            "penta_WL": 110,
-            "penta_DD": 7,
-            "penta_LD": 31,
-            "penta_LL": 32
+            "wins": 185,
+            "losses": 249,
+            "draws": 104,
+            "penta_WW": 31,
+            "penta_WD": 36,
+            "penta_WL": 87,
+            "penta_DD": 12,
+            "penta_LD": 44,
+            "penta_LL": 59
         }
     }
 }
