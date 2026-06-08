@@ -255,14 +255,6 @@ pub fn eval_negamax(
         }
     }
 
-    // Futility Pruning
-    if depth <= options.futilityDepth {
-        let ev_quiescent = quiesce(b, al, be, table, counter, options);
-        if ev_quiescent.val + options.futilitySafety < alpha.val {
-            return ev_quiescent;
-        }
-    }
-
     // Reverse Futility Pruning
     if depth <= options.revFutilityDepth && false {
         if ev_static.val >= beta.val + options.revFutilityFactor * (depth as i64) {
