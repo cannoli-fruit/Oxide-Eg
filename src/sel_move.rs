@@ -1,5 +1,6 @@
 use chess::Board;
 use chess::ChessMove;
+use chess::Color;
 use chess::MoveGen;
 
 use crate::negamax::eval_negamax;
@@ -10,6 +11,14 @@ use crate::ttentry::*;
 use std::collections::HashMap;
 use std::time::Instant;
 
+fn col_val(c: Color) -> i64 {
+    if c == Color::White {
+        1
+    } else {
+        -1
+    }
+}
+
 pub fn select_move(
     b: &Board,
     history: &mut Vec<u64>,
@@ -19,7 +28,7 @@ pub fn select_move(
     options: Settings,
 ) -> ChessMove {
     let start = Instant::now();
-    let max_depth = 12usize;
+    let max_depth = 18usize;
 
     let mut best_move = ChessMove::default();
     let mut best_score = Score::new();
@@ -102,9 +111,15 @@ pub fn select_move(
     }
     println!("info depth {}", highest_depth);
     if best_score.isMate() {
-        println!("info score mate {}", best_score.mateDist());
+        println!(
+            "info score mate {}",
+            (best_score.mateDist() as i64) * col_val(b.side_to_move())
+        );
     } else {
-        println!("info score cp {}", best_score.val);
+        println!(
+            "info score cp {}",
+            best_score.val * col_val(b.side_to_move())
+        );
     }
 
     best_move
