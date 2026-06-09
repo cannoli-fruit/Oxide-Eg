@@ -28,7 +28,7 @@ pub fn select_move(
     options: Settings,
 ) -> ChessMove {
     let start = Instant::now();
-    let max_depth = 12usize;
+    let max_depth = 18usize;
 
     let mut best_move = ChessMove::default();
     let mut best_score = Score::new();

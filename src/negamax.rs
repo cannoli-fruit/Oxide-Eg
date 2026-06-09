@@ -239,25 +239,22 @@ pub fn eval_negamax(
 
     let ev_static = eval_static(*b, options);
     let mut moves: Vec<ChessMove> = MoveGen::new_legal(b).collect();
+    let movcnt = moves.len();
 
     let mut val = Score::new();
     val.val = i64::MIN + 1;
 
     // MVV-LVA
-    moves.sort_by_key(|x| {
-        let c = b.make_move_new(*x);
-
-        let victim_sq = x.get_dest();
+    moves.select_nth_unstable_by_key(options.sortcnt.min(movcnt - 1), |m| {
+        let victim_sq = m.get_dest();
         let victim_piece = b.piece_on(victim_sq);
         let victim_value = value(victim_piece, options);
 
-        let attacker_sq = x.get_source();
+        let attacker_sq = m.get_source();
         let attacker_piece = b.piece_on(attacker_sq);
         let attacker_value = value(attacker_piece, options);
 
-        let check = c.checkers().popcnt() as i32;
-
-        Reverse(10 * victim_value - attacker_value + 50000 * check)
+        Reverse(10 * victim_value - attacker_value)
     });
 
     // PV move first
@@ -303,11 +300,11 @@ pub fn eval_negamax(
             //    nextdepth -= options.lmrMaxRedux.min(depth - 1);
             //}
             if depth >= options.lmrMinDepth {
-                nextdepth -= 2 + int_log2(depth) + (int_log2(movidx) >> 2);
+                nextdepth -= 1 + int_log2(depth) + (int_log2(movidx) >> 2);
                 nextdepth = nextdepth.max(0);
             }
 
-            // null window around alpha (correct PVS idea)
+            // null window around alpha
             let mut null_beta = al.clone();
             null_beta.val += 1;
 

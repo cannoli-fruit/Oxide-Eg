@@ -36,20 +36,8 @@ fn main() {
         bishopValue: 300,
         rookValue: 500,
         queenValue: 900,
-        nmpDepthMin: 4,
-        nmpStaticSafety: 200,
-        nmpMinPieces: 12,
-        lmrMinIdx: 3,
+        sortcnt: 6,
         lmrMinDepth: 2,
-        lmrMaxRedux: 2,
-        kingAttackValue: 0,
-        razoringMargin: 400,
-        deltaStaticSafety: 300,
-        quietFutilitySafety: 200,
-        futilitySafety: 200,
-        futilityDepth: 3,
-        revFutilityDepth: 5,
-        revFutilityFactor: 15,
         aspirationWindowSize: 35,
     };
 
@@ -65,20 +53,8 @@ fn main() {
             println!("option name bishopValue type spin default 300 min 0 max 1500");
             println!("option name rookValue type spin default 500 min 0 max 1500");
             println!("option name queenValue type spin default 900 min 0 max 1500");
-            println!("option name kingAttackValue type spin default 20 min 0 max 100");
-            println!("option name nmpDepthMin type spin default 4 min 3 max 24");
-            println!("option name nmpStaticSafety type spin default 200 min 0 max 1500");
-            println!("option name nmpMinPieces type spin default 12 min 0 max 32");
-            println!("option name lmrMinIdx type spin default 5 min 2 max 30");
             println!("option name lmrMinDepth type spin default 2 min 1 max 24");
-            println!("option name lmrMaxRedux type spin default 2 min 1 max 24");
-            println!("option name razoringMargin type spin default 400 min 0 max 1500");
-            println!("option name deltaStaticSafety type spin default 300 min 0 max 1500");
-            println!("option name quietFutilitySafety type spin default 200 min 0 max 1500");
-            println!("option name futilitySafety type spin default 200 min 0 max 1500");
-            println!("option name futilityDepth type spin default 3 min 0 max 1500");
-            println!("option name revFutilityDepth type spin default 5 min 1 max 24");
-            println!("option name revFutilityFactor type spin default 150 min 0 max 1500");
+            println!("option name sortcnt type spin default 6 min 1 max 24");
             println!("option name aspirationWindowSize type spin default 35 min 1 max 500");
             println!("uciok");
         }
@@ -183,19 +159,8 @@ fn main() {
                     "bishopValue" => options.bishopValue = value.parse().unwrap(),
                     "rookValue" => options.rookValue = value.parse().unwrap(),
                     "queenValue" => options.queenValue = value.parse().unwrap(),
-                    "nmpDepthMin" => options.nmpDepthMin = value.parse().unwrap(),
-                    "nmpStaticSafety" => options.nmpStaticSafety = value.parse().unwrap(),
-                    "lmrMinIdx" => options.lmrMinIdx = value.parse().unwrap(),
+                    "sortcnt" => options.sortcnt = value.parse().unwrap(),
                     "lmrMinDepth" => options.lmrMinDepth = value.parse().unwrap(),
-                    "lmrMaxRedux" => options.lmrMaxRedux = value.parse().unwrap(),
-                    "kingAttackValue" => options.kingAttackValue = value.parse().unwrap(),
-                    "razoringMargin" => options.razoringMargin = value.parse().unwrap(),
-                    "deltaStaticSafety" => options.deltaStaticSafety = value.parse().unwrap(),
-                    "quietFutilitySafety" => options.quietFutilitySafety = value.parse().unwrap(),
-                    "futilitySafety" => options.futilitySafety = value.parse().unwrap(),
-                    "futilityDepth" => options.futilityDepth = value.parse().unwrap(),
-                    "revFutilityFactor" => options.revFutilityFactor = value.parse().unwrap(),
-                    "revFutilityDepth" => options.revFutilityDepth = value.parse().unwrap(),
                     "aspirationWindowSize" => options.aspirationWindowSize = value.parse().unwrap(),
 
                     _ => {}

@@ -78,26 +78,6 @@ const eg_king_pst: [i64; 64] = [
     16, 7, -9, -27, -11, 4, 13, 14, 4, -5, -17, -53, -34, -21, -11, -28, -14, -24, -43,
 ];
 
-pub fn adjacent_mask(sq: u8) -> u64 {
-    let file = (sq & 7) as i8;
-    let rank = (sq >> 3) as i8;
-    let mut mask: u64 = 0;
-    for dr in -1..=1 {
-        for df in -1..=1 {
-            if dr == 0 && df == 0 {
-                continue;
-            }
-            let r = rank + dr;
-            let f = file + df;
-            if (0..=7).contains(&r) && (0..=7).contains(&f) {
-                let t = (r as u8) * 8 + (f as u8);
-                mask |= 1u64 << t;
-            }
-        }
-    }
-    mask
-}
-
 pub fn eval_static(b: Board, options: Settings) -> Score {
     let pieceCount = b.combined().popcnt();
     let egw = (1.0 - (pieceCount as f32) / 28.0).max(0.0).min(1.0);
