@@ -296,9 +296,6 @@ pub fn eval_negamax(
             .step();
         } else {
             // LMR
-            //if movidx >= options.lmrMinIdx && depth >= options.lmrMinDepth {
-            //    nextdepth -= options.lmrMaxRedux.min(depth - 1);
-            //}
             if depth >= options.lmrMinDepth {
                 nextdepth -= 1 + int_log2(depth) + (int_log2(movidx) >> 2);
                 nextdepth = nextdepth.max(0);
