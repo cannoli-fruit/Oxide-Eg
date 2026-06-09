@@ -238,49 +238,6 @@ pub fn eval_negamax(
     }
 
     let ev_static = eval_static(*b, options);
-
-    // Reverse Futility Pruning
-    if depth <= options.revFutilityDepth && false {
-        if ev_static.val >= beta.val + options.revFutilityFactor * (depth as i64) {
-            return beta;
-        }
-    }
-
-    // Null move pruning
-    if depth >= options.nmpDepthMin
-        && b.checkers().popcnt() == 0
-        && (b.color_combined(Color::White).popcnt() + b.color_combined(Color::Black).popcnt())
-            > options.nmpMinPieces
-        && !be.isMate()
-        && ev_static.val >= beta.val - options.nmpStaticSafety
-        && false
-    {
-        let child = b.null_move().unwrap();
-
-        let mut null_alpha = be.clone();
-        null_alpha.val -= 1;
-
-        let mut null_history = history.clone();
-        null_history.push(child.get_hash());
-
-        let score = eval_negamax(
-            &child,
-            &mut null_history,
-            depth - 3.min(depth),
-            be.clone().inverse(),
-            null_alpha.inverse(),
-            table,
-            counter,
-            options,
-        )
-        .inverse()
-        .step();
-
-        if !be.is_greater(score) && !score.isMate() {
-            return be;
-        }
-    }
-
     let mut moves: Vec<ChessMove> = MoveGen::new_legal(b).collect();
 
     let mut val = Score::new();
@@ -288,6 +245,8 @@ pub fn eval_negamax(
 
     // MVV-LVA
     moves.sort_by_key(|x| {
+        let c = b.make_move_new(*x);
+
         let victim_sq = x.get_dest();
         let victim_piece = b.piece_on(victim_sq);
         let victim_value = value(victim_piece, options);
@@ -296,7 +255,9 @@ pub fn eval_negamax(
         let attacker_piece = b.piece_on(attacker_sq);
         let attacker_value = value(attacker_piece, options);
 
-        Reverse(10 * victim_value - attacker_value)
+        let check = c.checkers().popcnt() as i32;
+
+        Reverse(10 * victim_value - attacker_value + 50000 * check)
     });
 
     // PV move first
