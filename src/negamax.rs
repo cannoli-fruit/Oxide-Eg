@@ -83,17 +83,6 @@ fn quiesce(
     iter.set_iterator_mask(*targets);
     let mut moves: Vec<ChessMove> = iter.collect();
 
-    // PV move first
-    if let Some(cached) = table.get(&TTEntry::new(*b)) {
-        let pv_move = cached.pvMove;
-
-        if moves.contains(&pv_move) {
-            if let Some(p) = moves.iter().position(|m| *m == pv_move) {
-                moves.swap(0, p);
-            }
-        }
-    }
-
     let mut child = b.clone();
     let mut bestMove = ChessMove::default();
 
@@ -108,6 +97,17 @@ fn quiesce(
 
         Reverse(10 * victim_value - attacker_value)
     });
+
+    // PV move first
+    if let Some(cached) = table.get(&TTEntry::new(*b)) {
+        let pv_move = cached.pvMove;
+
+        if moves.contains(&pv_move) {
+            if let Some(p) = moves.iter().position(|m| *m == pv_move) {
+                moves.swap(0, p);
+            }
+        }
+    }
 
     for mov in moves {
         let victim_value = value(b.piece_on(mov.get_dest()), options) as i64;
