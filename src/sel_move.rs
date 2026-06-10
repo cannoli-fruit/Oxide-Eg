@@ -3,6 +3,7 @@ use chess::ChessMove;
 use chess::Color;
 use chess::MoveGen;
 
+use crate::negamax;
 use crate::negamax::eval_negamax;
 use crate::score::Score;
 use crate::settings::Settings;
@@ -28,7 +29,7 @@ pub fn select_move(
     options: Settings,
 ) -> ChessMove {
     let start = Instant::now();
-    let max_depth = 18usize;
+    let max_depth = 12usize;
 
     let mut best_move = ChessMove::default();
     let mut best_score = Score::new();
@@ -69,6 +70,7 @@ pub fn select_move(
                 depth as i32,
                 alpha,
                 beta,
+                false,
                 table,
                 counter,
                 options,
@@ -86,6 +88,7 @@ pub fn select_move(
                     depth as i32,
                     alpha,
                     beta,
+                    false,
                     table,
                     counter,
                     options,
@@ -107,6 +110,9 @@ pub fn select_move(
         // use the result from the completed depth
         best_move = local_best_move;
         best_score = local_best_score;
+        if best_score.isMate() {
+            break;
+        }
         highest_depth = depth;
     }
     println!("info depth {}", highest_depth);
@@ -121,6 +127,11 @@ pub fn select_move(
             best_score.val * col_val(b.side_to_move())
         );
     }
+    println!(
+        "info string null attempts: {}",
+        negamax::get_null_attempts()
+    );
+    println!("info string null cutoffs: {}", negamax::get_null_cutoffs());
 
     best_move
 }

@@ -13,6 +13,17 @@ use chess::Piece;
 use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::hash::{BuildHasher, Hash, Hasher};
+use std::ops::BitAnd;
+
+pub static mut null_attempts: i32 = 0;
+pub static mut null_cutoffs: i32 = 0;
+
+pub fn get_null_attempts() -> i32 {
+    unsafe { null_attempts }
+}
+pub fn get_null_cutoffs() -> i32 {
+    unsafe { null_cutoffs }
+}
 
 fn value(p: Option<Piece>, options: Settings) -> i32 {
     match p {
@@ -159,6 +170,7 @@ pub fn eval_negamax(
     depth: i32,
     alpha: Score,
     beta: Score,
+    allow_null: bool,
     table: &mut HashMap<TTEntry, TTData>,
     counter: &mut i64,
     options: Settings,
@@ -180,7 +192,7 @@ pub fn eval_negamax(
         val.val = 0;
         return val;
     }
-    if depth == 0 {
+    if depth <= 0 {
         return quiesce(b, alpha, beta, table, counter, options);
     }
 
@@ -238,6 +250,51 @@ pub fn eval_negamax(
     }
 
     let ev_static = eval_static(*b, options);
+
+    // NMP
+    if depth >= 3
+        && b.checkers().popcnt() == 0
+        && b.pieces(Piece::Pawn)
+            .bitand(b.color_combined(b.side_to_move()))
+            .popcnt()
+            != 0
+        && allow_null
+        && ev_static.val >= beta.val - 0
+    {
+        unsafe {
+            null_attempts += 1;
+        }
+        let c = b.null_move().unwrap();
+
+        let mut R = 3 + (depth >> 1);
+        //let R = 3;
+
+        R = R.min(depth - 2);
+        let mut null_beta = be.clone();
+        null_beta.val -= 1;
+
+        let score = eval_negamax(
+            &c,
+            history,
+            depth - 1 - R,
+            be.clone().inverse(),
+            null_beta.inverse(),
+            false,
+            table,
+            counter,
+            options,
+        )
+        .inverse()
+        .step();
+
+        if score.val >= be.val {
+            unsafe {
+                null_cutoffs += 1;
+            }
+            return be;
+        }
+    }
+
     let mut moves: Vec<ChessMove> = MoveGen::new_legal(b).collect();
     let movcnt = moves.len();
 
@@ -288,6 +345,7 @@ pub fn eval_negamax(
                 nextdepth,
                 be.clone().inverse(),
                 al.clone().inverse(),
+                false,
                 table,
                 counter,
                 options,
@@ -311,6 +369,7 @@ pub fn eval_negamax(
                 nextdepth,
                 null_beta.inverse(),
                 al.clone().inverse(),
+                true,
                 table,
                 counter,
                 options,
@@ -326,6 +385,7 @@ pub fn eval_negamax(
                     depth - 1,
                     null_beta.inverse(),
                     al.clone().inverse(),
+                    true,
                     table,
                     counter,
                     options,
@@ -341,6 +401,7 @@ pub fn eval_negamax(
                         depth - 1,
                         be.clone().inverse(),
                         al.clone().inverse(),
+                        true,
                         table,
                         counter,
                         options,
