@@ -60,7 +60,7 @@
     },
     "config_name": "config.json",
     "output": 0,
-    "seed": 10470939583009478767,
+    "seed": 15095550583122529614,
     "variant": 0,
     "type": 0,
     "gauntlet_seeds": 1,
@@ -88,7 +88,7 @@
     },
     "engines": [
         {
-            "name": "base",
+            "name": "new",
             "dir": "",
             "cmd": "target/release/ox-eg",
             "args": "",
@@ -96,7 +96,7 @@
             "options": [],
             "limit": {
                 "tc": {
-                    "increment": 80,
+                    "increment": 120,
                     "fixed_time": 0,
                     "time": 1000,
                     "moves": 0,
@@ -108,15 +108,15 @@
             "variant": 0
         },
         {
-            "name": "new",
+            "name": "base",
             "dir": "",
-            "cmd": "oldbin/singlefail-v17",
+            "cmd": "oldbin/prekillers-v18",
             "args": "",
             "restart": false,
             "options": [],
             "limit": {
                 "tc": {
-                    "increment": 80,
+                    "increment": 120,
                     "fixed_time": 0,
                     "time": 1000,
                     "moves": 0,
@@ -129,16 +129,16 @@
         }
     ],
     "stats": {
-        "base vs new": {
-            "wins": 284,
-            "losses": 183,
-            "draws": 113,
-            "penta_WW": 64,
-            "penta_WD": 71,
-            "penta_WL": 85,
-            "penta_DD": 3,
-            "penta_LD": 36,
-            "penta_LL": 31
+        "new vs base": {
+            "wins": 89,
+            "losses": 101,
+            "draws": 70,
+            "penta_WW": 15,
+            "penta_WD": 22,
+            "penta_WL": 37,
+            "penta_DD": 8,
+            "penta_LD": 32,
+            "penta_LL": 16
         }
     }
 }

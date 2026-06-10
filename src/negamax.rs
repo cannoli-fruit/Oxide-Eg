@@ -101,12 +101,13 @@ fn quiesce(
     let mut child = b.clone();
     let mut bestMove = ChessMove::default();
 
-    moves.sort_by_key(|x| {
-        let victim_sq = x.get_dest();
+    // MVV-LVA
+    moves.sort_by_key(|m| {
+        let victim_sq = m.get_dest();
         let victim_piece = b.piece_on(victim_sq);
         let victim_value = value(victim_piece, options);
 
-        let attacker_sq = x.get_source();
+        let attacker_sq = m.get_source();
         let attacker_piece = b.piece_on(attacker_sq);
         let attacker_value = value(attacker_piece, options);
 
@@ -176,9 +177,11 @@ pub fn eval_negamax(
     b: &Board,
     history: &mut Vec<u64>,
     depth: i32,
+    ply: usize,
     alpha: Score,
     beta: Score,
     allow_null: bool,
+    killer: &mut [ChessMove; 256],
     timer: &mut Timer,
     table: &mut HashMap<TTEntry, TTData>,
     counter: &mut i64,
@@ -283,6 +286,7 @@ pub fn eval_negamax(
             null_attempts += 1;
         }
         let c = b.null_move().unwrap();
+        let mut null_history = history.clone();
 
         //let mut R = 3 + (depth >> 1);
         let mut R = 3;
@@ -293,11 +297,13 @@ pub fn eval_negamax(
 
         let score = eval_negamax(
             &c,
-            history,
+            &mut null_history,
             depth - 1 - R,
+            ply + 1,
             be.clone().inverse(),
             null_beta.inverse(),
             false,
+            killer,
             timer,
             table,
             counter,
@@ -320,29 +326,33 @@ pub fn eval_negamax(
     let mut val = Score::new();
     val.val = i64::MIN + 1;
 
-    // MVV-LVA
-    moves.select_nth_unstable_by_key(options.sortcnt.min(movcnt - 1), |m| {
-        let victim_sq = m.get_dest();
+    moves.sort_by_key(|x| {
+        let mut is_pv = false;
+
+        if let Some(cached) = table.get(&TTEntry::new(*b)) {
+            let pv_move = cached.pvMove;
+            if *x == pv_move {
+                return Reverse(1_000_000);
+            }
+        }
+
+        let victim_sq = x.get_dest();
         let victim_piece = b.piece_on(victim_sq);
         let victim_value = value(victim_piece, options);
 
-        let attacker_sq = m.get_source();
-        let attacker_piece = b.piece_on(attacker_sq);
-        let attacker_value = value(attacker_piece, options);
+        if victim_value != 0 {
+            let attacker_sq = x.get_source();
+            let attacker_piece = b.piece_on(attacker_sq);
+            let attacker_value = value(attacker_piece, options);
 
-        Reverse(10 * victim_value - attacker_value)
-    });
-
-    // PV move first
-    if let Some(cached) = table.get(&TTEntry::new(*b)) {
-        let pv_move = cached.pvMove;
-
-        if moves.contains(&pv_move) {
-            if let Some(p) = moves.iter().position(|m| *m == pv_move) {
-                moves.swap(0, p);
+            return Reverse(10 * victim_value - attacker_value);
+        } else {
+            if killer[ply] == *x {
+                return Reverse(5000);
             }
         }
-    }
+        return Reverse(0);
+    });
 
     let mut child = b.clone();
     let mut bestMove = ChessMove::default();
@@ -362,9 +372,11 @@ pub fn eval_negamax(
                 &child,
                 history,
                 nextdepth,
+                ply + 1,
                 be.clone().inverse(),
                 al.clone().inverse(),
                 false,
+                killer,
                 timer,
                 table,
                 counter,
@@ -391,9 +403,11 @@ pub fn eval_negamax(
                 &child,
                 history,
                 nextdepth,
+                ply + 1,
                 null_beta.inverse(),
                 al.clone().inverse(),
                 true,
+                killer,
                 timer,
                 table,
                 counter,
@@ -411,9 +425,11 @@ pub fn eval_negamax(
                     &child,
                     history,
                     depth - 1,
+                    ply + 1,
                     null_beta.inverse(),
                     al.clone().inverse(),
                     true,
+                    killer,
                     timer,
                     table,
                     counter,
@@ -431,9 +447,11 @@ pub fn eval_negamax(
                         &child,
                         history,
                         depth - 1,
+                        ply + 1,
                         be.clone().inverse(),
                         al.clone().inverse(),
                         true,
+                        killer,
                         timer,
                         table,
                         counter,
@@ -459,6 +477,7 @@ pub fn eval_negamax(
         }
 
         if !be.is_greater(al) {
+            killer[ply] = *mov;
             break;
         }
         movidx += 1;
