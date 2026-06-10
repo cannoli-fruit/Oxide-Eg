@@ -7,6 +7,7 @@ use crate::negamax;
 use crate::negamax::eval_negamax;
 use crate::score::Score;
 use crate::settings::Settings;
+use crate::timedata::Timer;
 use crate::ttentry::*;
 
 use std::collections::HashMap;
@@ -28,8 +29,12 @@ pub fn select_move(
     counter: &mut i64,
     options: Settings,
 ) -> ChessMove {
-    let start = Instant::now();
-    let max_depth = 12usize;
+    let mut timer = Timer {
+        start: Instant::now(),
+        len: max_time,
+        stop: false,
+    };
+    let max_depth = 32usize;
 
     let mut best_move = ChessMove::default();
     let mut best_score = Score::new();
@@ -62,6 +67,8 @@ pub fn select_move(
             }
         }
 
+        let mut timeout = false;
+
         for mov in &moves {
             let child = b.make_move_new(*mov);
             let mut ev = eval_negamax(
@@ -71,13 +78,11 @@ pub fn select_move(
                 alpha,
                 beta,
                 false,
+                &mut timer,
                 table,
                 counter,
                 options,
             );
-            if start.elapsed().as_millis() > max_time.into() {
-                break;
-            }
             if !ev.is_greater(alpha) || !beta.is_greater(ev) {
                 //Aspiration failure
                 beta.val = 4294967296;
@@ -89,21 +94,23 @@ pub fn select_move(
                     alpha,
                     beta,
                     false,
+                    &mut timer,
                     table,
                     counter,
                     options,
                 );
             }
+            if timer.stop {
+                timeout = true;
+                break;
+            }
+
             if local_best_score.is_greater(ev) {
                 local_best_score = ev;
                 local_best_move = *mov;
             }
-
-            if start.elapsed().as_millis() > max_time.into() {
-                break;
-            }
         }
-        if start.elapsed().as_millis() > max_time.into() {
+        if timeout {
             break;
         }
 

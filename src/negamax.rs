@@ -1,6 +1,7 @@
 use crate::ev_static::eval_static;
 use crate::score::Score;
 use crate::settings::Settings;
+use crate::timedata::Timer;
 use crate::ttentry::*;
 
 use chess::Board;
@@ -14,6 +15,8 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::ops::BitAnd;
+use std::ops::BitOr;
+use std::ops::Not;
 
 pub static mut null_attempts: i32 = 0;
 pub static mut null_cutoffs: i32 = 0;
@@ -49,6 +52,7 @@ fn quiesce(
     b: &Board,
     alpha: Score,
     beta: Score,
+    timer: &mut Timer,
     table: &mut HashMap<TTEntry, TTData>,
     counter: &mut i64,
     options: Settings,
@@ -128,12 +132,16 @@ fn quiesce(
             &child,
             be.clone().inverse(),
             al.clone().inverse(),
+            timer,
             table,
             counter,
             options,
         )
         .inverse()
         .step();
+        if timer.stop {
+            return al;
+        }
         if !be.is_greater(score) {
             return beta;
         }
@@ -171,6 +179,7 @@ pub fn eval_negamax(
     alpha: Score,
     beta: Score,
     allow_null: bool,
+    timer: &mut Timer,
     table: &mut HashMap<TTEntry, TTData>,
     counter: &mut i64,
     options: Settings,
@@ -192,8 +201,11 @@ pub fn eval_negamax(
         val.val = 0;
         return val;
     }
+    if *counter & 4095 == 0 {
+        timer.recalc();
+    }
     if depth <= 0 {
-        return quiesce(b, alpha, beta, table, counter, options);
+        return quiesce(b, alpha, beta, timer, table, counter, options);
     }
 
     // Ram limiter
@@ -251,14 +263,20 @@ pub fn eval_negamax(
 
     let ev_static = eval_static(*b, options);
 
+    let stm_pieces = b.color_combined(b.side_to_move());
+
+    let stm_material = b
+        .pieces(Piece::Knight)
+        .bitor(b.pieces(Piece::Bishop))
+        .bitor(b.pieces(Piece::Rook))
+        .bitor(b.pieces(Piece::Queen))
+        .bitand(stm_pieces);
+
     // NMP
     if depth >= 3
         && b.checkers().popcnt() == 0
-        && b.pieces(Piece::Pawn)
-            .bitand(b.color_combined(b.side_to_move()))
-            .popcnt()
-            != 0
         && allow_null
+        && stm_material.popcnt() != 0
         && ev_static.val >= beta.val - 0
     {
         unsafe {
@@ -266,8 +284,8 @@ pub fn eval_negamax(
         }
         let c = b.null_move().unwrap();
 
-        let mut R = 3 + (depth >> 1);
-        //let R = 3;
+        //let mut R = 3 + (depth >> 1);
+        let mut R = 3;
 
         R = R.min(depth - 2);
         let mut null_beta = be.clone();
@@ -280,6 +298,7 @@ pub fn eval_negamax(
             be.clone().inverse(),
             null_beta.inverse(),
             false,
+            timer,
             table,
             counter,
             options,
@@ -346,12 +365,17 @@ pub fn eval_negamax(
                 be.clone().inverse(),
                 al.clone().inverse(),
                 false,
+                timer,
                 table,
                 counter,
                 options,
             )
             .inverse()
             .step();
+
+            if timer.stop {
+                return al;
+            }
         } else {
             // LMR
             if depth >= options.lmrMinDepth {
@@ -370,12 +394,16 @@ pub fn eval_negamax(
                 null_beta.inverse(),
                 al.clone().inverse(),
                 true,
+                timer,
                 table,
                 counter,
                 options,
             )
             .inverse()
             .step();
+            if timer.stop {
+                return al;
+            }
 
             // LMR fail-high
             if ev.is_greater(al.clone()) {
@@ -386,12 +414,16 @@ pub fn eval_negamax(
                     null_beta.inverse(),
                     al.clone().inverse(),
                     true,
+                    timer,
                     table,
                     counter,
                     options,
                 )
                 .inverse()
                 .step();
+                if timer.stop {
+                    return al;
+                }
 
                 // PVS fail-high
                 if ev.is_greater(al.clone()) {
@@ -402,12 +434,16 @@ pub fn eval_negamax(
                         be.clone().inverse(),
                         al.clone().inverse(),
                         true,
+                        timer,
                         table,
                         counter,
                         options,
                     )
                     .inverse()
                     .step();
+                    if timer.stop {
+                        return al;
+                    }
                 }
             }
         }

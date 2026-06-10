@@ -3,6 +3,7 @@ mod negamax;
 mod score;
 mod sel_move;
 mod settings;
+mod timedata;
 mod ttentry;
 
 use chess::Board;
