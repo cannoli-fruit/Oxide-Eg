@@ -60,7 +60,7 @@
     },
     "config_name": "config.json",
     "output": 0,
-    "seed": 8115485568757215689,
+    "seed": 3602518264196276691,
     "variant": 0,
     "type": 0,
     "gauntlet_seeds": 1,
@@ -90,7 +90,7 @@
         {
             "name": "new",
             "dir": "",
-            "cmd": "target/release/ox-eg",
+            "cmd": "draw-fix-ver",
             "args": "",
             "restart": false,
             "options": [],
@@ -110,7 +110,7 @@
         {
             "name": "base",
             "dir": "",
-            "cmd": "oldbin/precheckext-v20",
+            "cmd": "base-ver",
             "args": "",
             "restart": false,
             "options": [],
@@ -130,15 +130,15 @@
     ],
     "stats": {
         "new vs base": {
-            "wins": 1792,
-            "losses": 1836,
-            "draws": 272,
-            "penta_WW": 429,
-            "penta_WD": 110,
-            "penta_WL": 824,
-            "penta_DD": 7,
-            "penta_LD": 148,
-            "penta_LL": 432
+            "wins": 88,
+            "losses": 142,
+            "draws": 22,
+            "penta_WW": 15,
+            "penta_WD": 9,
+            "penta_WL": 49,
+            "penta_DD": 0,
+            "penta_LD": 13,
+            "penta_LL": 40
         }
     }
 }
