@@ -53,7 +53,7 @@ fn quiesce(
     alpha: Score,
     beta: Score,
     timer: &mut Timer,
-    table: &mut HashMap<TTEntry, TTData>,
+    table: &mut Box<[TTData]>,
     counter: &mut i64,
     options: Settings,
 ) -> Score {
@@ -70,8 +70,9 @@ fn quiesce(
         al = val;
     }
 
-    let currEntry = TTEntry::new(*b);
-    if let Some(dat) = table.get(&currEntry) {
+    let currEntry = b.get_hash();
+    if table[(currEntry & 33554431) as usize].hash == currEntry {
+        let dat = table[(currEntry & 33554431) as usize];
         match dat.bound {
             TTData_BoundType::EXACT => {
                 return dat.eval;
@@ -114,17 +115,6 @@ fn quiesce(
         Reverse(10 * victim_value - attacker_value)
     });
 
-    // PV move first
-    if let Some(cached) = table.get(&TTEntry::new(*b)) {
-        let pv_move = cached.pvMove;
-
-        if moves.contains(&pv_move) {
-            if let Some(p) = moves.iter().position(|m| *m == pv_move) {
-                moves.swap(0, p);
-            }
-        }
-    }
-
     for mov in moves {
         let victim_value = value(b.piece_on(mov.get_dest()), options) as i64;
         let attacker_value = value(b.piece_on(mov.get_source()), options) as i64;
@@ -165,7 +155,8 @@ fn quiesce(
         TTData_BoundType::EXACT
     };
 
-    table.insert(currEntry, TTData::new(bestMove, val, 0, entry_bound));
+    table[(currEntry & 33554431) as usize] =
+        TTData::new(b.get_hash(), bestMove, val, 0, entry_bound);
     return val;
 }
 
@@ -183,7 +174,7 @@ pub fn eval_negamax(
     allow_null: bool,
     killer: &mut [ChessMove; 256],
     timer: &mut Timer,
-    table: &mut HashMap<TTEntry, TTData>,
+    table: &mut Box<[TTData]>,
     counter: &mut i64,
     options: Settings,
 ) -> Score {
@@ -211,36 +202,13 @@ pub fn eval_negamax(
         return quiesce(b, alpha, beta, timer, table, counter, options);
     }
 
-    // Ram limiter
-    let approx_bytes = table.len() * std::mem::size_of::<TTEntry>();
-    if approx_bytes >= 157903209 {
-        // ~1gb there's a factor off
-        let mut to_remove = Vec::new();
-
-        for key in table.keys() {
-            // cheap deterministic "random"
-            let mut h = std::collections::hash_map::RandomState::new().build_hasher();
-            key.hash(&mut h);
-            h.write_u64(42);
-            let r = h.finish();
-
-            // ~20% eviction rate
-            if (r & 7) == 0 {
-                to_remove.push(key.clone());
-            }
-        }
-
-        for k in to_remove {
-            table.remove(&k);
-            table.shrink_to_fit();
-        }
-    }
     let mut al = alpha.clone();
     let mut be = beta.clone();
 
-    let currEntry = TTEntry::new(*b);
+    let currEntry = b.get_hash();
 
-    if let Some(dat) = table.get(&currEntry) {
+    if table[(currEntry & 33554431) as usize].hash == currEntry {
+        let dat = table[(currEntry & 33554431) as usize];
         if dat.depth >= depth {
             match dat.bound {
                 TTData_BoundType::EXACT => {
@@ -329,8 +297,8 @@ pub fn eval_negamax(
     moves.sort_by_key(|x| {
         let mut is_pv = false;
 
-        if let Some(cached) = table.get(&TTEntry::new(*b)) {
-            let pv_move = cached.pvMove;
+        if table[(currEntry & 33554431) as usize].hash == currEntry {
+            let pv_move = table[(currEntry & 33554431) as usize].pvMove;
             if *x == pv_move {
                 return Reverse(1_000_000);
             }
@@ -489,6 +457,7 @@ pub fn eval_negamax(
     } else {
         TTData_BoundType::EXACT
     };
-    table.insert(currEntry, TTData::new(bestMove, val, depth, entry_bound));
+    table[(currEntry & 33554431) as usize] =
+        TTData::new(b.get_hash(), bestMove, val, depth, entry_bound);
     return val;
 }
