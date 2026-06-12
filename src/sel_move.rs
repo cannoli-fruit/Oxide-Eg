@@ -25,7 +25,7 @@ fn col_val(c: Color) -> i64 {
 pub fn select_move(
     b: &Board,
     history: &mut Vec<u64>,
-    table: &mut HashMap<TTEntry, TTData>,
+    table: &mut Box<[TTData]>,
     max_time: u64,
     counter: &mut i64,
     options: Settings,
@@ -135,7 +135,7 @@ pub fn select_move(
     if best_score.isMate() {
         println!(
             "info score mate {}",
-            (best_score.mateDist() as i64) * col_val(b.side_to_move())
+            (best_score.mateDist() as i64 >> 1) * col_val(b.side_to_move())
         );
     } else {
         println!(

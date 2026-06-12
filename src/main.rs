@@ -12,10 +12,12 @@ use chess::Color;
 use std::io;
 use std::str::FromStr;
 
+use crate::ttentry::TTData;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::Path;
+use std::process::exit;
 
 fn append_to_file(path: String, contents: String) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
@@ -31,7 +33,12 @@ fn main() {
     let stdin = io::stdin();
     let mut history: Vec<u64> = Vec::new();
 
-    let mut table = HashMap::new();
+    let n = 33_554_432usize;
+    let mut v: Vec<TTData> = Vec::new();
+    v.try_reserve(n);
+    v.extend((0..n).map(|_| TTData::default()));
+    let mut table: Box<[TTData]> = v.into_boxed_slice();
+
     let mut options = settings::Settings {
         knightValue: 300,
         bishopValue: 300,
@@ -42,10 +49,12 @@ fn main() {
         aspirationWindowSize: 35,
     };
 
+    println!("here");
+    //exit(0);
+
     loop {
         let mut buf = String::new();
         stdin.read_line(&mut buf);
-        //append_to_file("/tmp/oxeg_in_log".to_string(), buf.clone());
         buf.pop();
         if buf == "uci" {
             println!("id name The Oxidized Engine");
@@ -107,6 +116,7 @@ fn main() {
             println!("info nodes {}", counter);
             println!("bestmove {}", mov,);
         }
+        //exit(0);
         if buf.starts_with("go movetime") {
             let time: u64 = buf[12..].parse().unwrap();
             let mut counter = 0;
@@ -169,7 +179,7 @@ fn main() {
             }
         }
         if buf.starts_with("quit") {
-            std::process::exit(0)
+            exit(0)
         }
     }
 }

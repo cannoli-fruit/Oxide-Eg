@@ -54,13 +54,13 @@
         "alpha": 0.05,
         "beta": 0.1,
         "elo0": 0.0,
-        "elo1": 10.0,
+        "elo1": 1.0,
         "model": "normalized",
         "enabled": true
     },
     "config_name": "config.json",
     "output": 0,
-    "seed": 15095550583122529614,
+    "seed": 8115485568757215689,
     "variant": 0,
     "type": 0,
     "gauntlet_seeds": 1,
@@ -110,7 +110,7 @@
         {
             "name": "base",
             "dir": "",
-            "cmd": "oldbin/prekillers-v18",
+            "cmd": "oldbin/precheckext-v20",
             "args": "",
             "restart": false,
             "options": [],
@@ -130,15 +130,15 @@
     ],
     "stats": {
         "new vs base": {
-            "wins": 89,
-            "losses": 101,
-            "draws": 70,
-            "penta_WW": 15,
-            "penta_WD": 22,
-            "penta_WL": 37,
-            "penta_DD": 8,
-            "penta_LD": 32,
-            "penta_LL": 16
+            "wins": 1792,
+            "losses": 1836,
+            "draws": 272,
+            "penta_WW": 429,
+            "penta_WD": 110,
+            "penta_WL": 824,
+            "penta_DD": 7,
+            "penta_LD": 148,
+            "penta_LL": 432
         }
     }
 }
