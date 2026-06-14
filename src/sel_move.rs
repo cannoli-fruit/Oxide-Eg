@@ -126,6 +126,24 @@ pub fn select_move(
         // use the result from the completed depth
         best_move = local_best_move;
         best_score = local_best_score;
+        let timespent = timer.start.elapsed().as_millis() as i64;
+        print!(
+            "info depth {} nodes {} time {} nps {} currmove {}",
+            depth,
+            counter,
+            timespent,
+            1000 * (*counter / timespent),
+            best_move,
+        );
+        if best_score.isMate() {
+            println!(
+                " score mate {}",
+                (best_score.mateDist() as i64 >> 1) * col_val(b.side_to_move())
+            );
+        } else {
+            println!(" score cp {}", best_score.val * col_val(b.side_to_move()));
+        }
+
         if best_score.isMate() {
             break;
         }
