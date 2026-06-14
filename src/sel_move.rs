@@ -132,7 +132,7 @@ pub fn select_move(
             depth,
             counter,
             timespent,
-            1000 * (*counter / timespent),
+            1000 * (*counter / (timespent + 1)),
             best_move,
         );
         if best_score.isMate() {
