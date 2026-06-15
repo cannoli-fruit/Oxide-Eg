@@ -163,7 +163,7 @@ fn quiesce(
 }
 
 fn is_repetition(history: &Vec<u64>, current: u64) -> bool {
-    history.iter().filter(|&&h| h == current).count() > 2
+    history.iter().filter(|&&h| h == current).count() >= 3
 }
 
 pub fn eval_negamax(
@@ -187,9 +187,11 @@ pub fn eval_negamax(
     if s == BoardStatus::Checkmate {
         let mut val = Score::new();
         val.val = -4294967296;
+        history.pop();
         return val;
     }
     if s == BoardStatus::Stalemate {
+        history.pop();
         return scorez;
     }
     if is_repetition(history, b.get_hash()) {
@@ -215,6 +217,7 @@ pub fn eval_negamax(
         if dat.depth >= depth {
             match dat.bound {
                 TTData_BoundType::EXACT => {
+                    history.pop();
                     return dat.eval;
                 }
                 TTData_BoundType::LOWER => {
@@ -230,6 +233,7 @@ pub fn eval_negamax(
             }
 
             if !be.is_greater(al.clone()) {
+                history.pop();
                 return al;
             }
         }
@@ -287,6 +291,7 @@ pub fn eval_negamax(
             unsafe {
                 null_cutoffs += 1;
             }
+            history.pop();
             return be;
         }
     }
@@ -356,6 +361,7 @@ pub fn eval_negamax(
             .step();
 
             if timer.stop {
+                history.pop();
                 return scorez;
             }
         } else {
@@ -386,6 +392,7 @@ pub fn eval_negamax(
             .inverse()
             .step();
             if timer.stop {
+                history.pop();
                 return scorez;
             }
 
@@ -408,6 +415,7 @@ pub fn eval_negamax(
                 .inverse()
                 .step();
                 if timer.stop {
+                    history.pop();
                     return scorez;
                 }
 
@@ -430,6 +438,7 @@ pub fn eval_negamax(
                     .inverse()
                     .step();
                     if timer.stop {
+                        history.pop();
                         return scorez;
                     }
                 }
