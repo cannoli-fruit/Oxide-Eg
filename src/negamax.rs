@@ -163,7 +163,7 @@ fn quiesce(
 }
 
 fn is_repetition(history: &Vec<u64>, current: u64) -> bool {
-    history.iter().filter(|&&h| h == current).count() >= 2
+    history.iter().filter(|&&h| h == current).count() > 2
 }
 
 pub fn eval_negamax(
@@ -194,6 +194,7 @@ pub fn eval_negamax(
     if is_repetition(history, b.get_hash()) {
         return scorez;
     }
+    //history.push(b.get_hash());
     if *counter & 4095 == 0 {
         timer.recalc();
     }

@@ -36,6 +36,7 @@ pub fn select_move(
         stop: false,
     };
     let max_depth = 32usize;
+    history.push(b.get_hash());
 
     let mut best_move = ChessMove::default();
     let mut best_score = Score::new();
