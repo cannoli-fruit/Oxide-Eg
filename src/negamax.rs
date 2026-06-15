@@ -182,6 +182,7 @@ pub fn eval_negamax(
 ) -> Score {
     *counter += 1;
     let scorez = Score::new();
+    history.push(b.get_hash());
     let s = b.status();
     if s == BoardStatus::Checkmate {
         let mut val = Score::new();
@@ -192,14 +193,16 @@ pub fn eval_negamax(
         return scorez;
     }
     if is_repetition(history, b.get_hash()) {
+        history.pop();
         return scorez;
     }
-    //history.push(b.get_hash());
     if *counter & 4095 == 0 {
         timer.recalc();
     }
     if depth <= 0 {
-        return quiesce(b, alpha, beta, timer, table, counter, options);
+        let qev = quiesce(b, alpha, beta, timer, table, counter, options);
+        history.pop();
+        return qev;
     }
 
     let mut al = alpha.clone();
@@ -328,7 +331,6 @@ pub fn eval_negamax(
     for mov in &mut moves {
         let isCapture = b.piece_on(mov.get_dest()).is_some();
         b.make_move(*mov, &mut child);
-        history.push(child.get_hash());
         let isCheck = child.checkers().popcnt() != 0;
 
         let mut nextdepth = depth - 1;
@@ -433,7 +435,6 @@ pub fn eval_negamax(
                 }
             }
         }
-        history.pop();
 
         if ev.is_greater(val) {
             val = ev.clone();
@@ -459,5 +460,6 @@ pub fn eval_negamax(
     };
     table[(currEntry & 33554431) as usize] =
         TTData::new(b.get_hash(), bestMove, val, depth, entry_bound);
+    history.pop();
     return val;
 }

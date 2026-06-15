@@ -73,7 +73,6 @@ pub fn select_move(
 
         for mov in &moves {
             let child = b.make_move_new(*mov);
-            history.push(child.get_hash());
             let mut killer = [ChessMove::new(Square::A1, Square::A1, None); 256];
             let mut ev = eval_negamax(
                 &child,
@@ -109,7 +108,6 @@ pub fn select_move(
                     options,
                 );
             }
-            history.pop();
             if timer.stop {
                 timeout = true;
                 break;
