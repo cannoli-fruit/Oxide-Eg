@@ -60,6 +60,8 @@ fn quiesce(
     *counter += 1;
     let ev = eval_static(*b, options);
 
+    let scorez = Score::new();
+
     let mut val = ev;
     if !beta.is_greater(val) {
         return val;
@@ -131,7 +133,7 @@ fn quiesce(
         .inverse()
         .step();
         if timer.stop {
-            return al;
+            return scorez;
         }
         if !be.is_greater(score) {
             return beta;
@@ -179,6 +181,7 @@ pub fn eval_negamax(
     options: Settings,
 ) -> Score {
     *counter += 1;
+    let scorez = Score::new();
     let s = b.status();
     if s == BoardStatus::Checkmate {
         let mut val = Score::new();
@@ -186,14 +189,10 @@ pub fn eval_negamax(
         return val;
     }
     if s == BoardStatus::Stalemate {
-        let mut val = Score::new();
-        val.val = 0;
-        return val;
+        return scorez;
     }
     if is_repetition(history, b.get_hash()) {
-        let mut val = Score::new();
-        val.val = 0;
-        return val;
+        return scorez;
     }
     if *counter & 4095 == 0 {
         timer.recalc();
@@ -354,7 +353,7 @@ pub fn eval_negamax(
             .step();
 
             if timer.stop {
-                return al;
+                return scorez;
             }
         } else {
             // LMR
@@ -384,7 +383,7 @@ pub fn eval_negamax(
             .inverse()
             .step();
             if timer.stop {
-                return al;
+                return scorez;
             }
 
             // LMR fail-high
@@ -406,7 +405,7 @@ pub fn eval_negamax(
                 .inverse()
                 .step();
                 if timer.stop {
-                    return al;
+                    return scorez;
                 }
 
                 // PVS fail-high
@@ -428,7 +427,7 @@ pub fn eval_negamax(
                     .inverse()
                     .step();
                     if timer.stop {
-                        return al;
+                        return scorez;
                     }
                 }
             }
